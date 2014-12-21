@@ -288,87 +288,11 @@ def get_bind_port():
             print 'Error processing your port selection.'            
     return bind_port
 
-def get_system_info():
-    os = 'undefined'
-    proc_type = 'undefined'
-    proc_arch = 'undefined'
-    bin_path = 'undefined'
-    try:
-        # get OS name
-        p1 = subprocess.Popen(
-            [
-            'uname',
-            '-s'
-            ],
-            shell=False,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        (out1, err1) = p1.communicate()
-        os = str(out1).strip()
-        # Determine processor type and architecture
-        p2 = subprocess.Popen(
-            [
-            'uname',
-            '-p'
-            ],
-            shell=False,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        (out2, err2) = p2.communicate()
-        if str(out2).strip() in ['i386','i686']:
-            proc_type = 'i686'
-            proc_arch = 'generic'
-            bin_path = 'Linux_i686_generic/'
-        elif str(out2).strip() in ['x86_64']:
-            proc_type = str(out2).strip()
-            p3 = subprocess.Popen(
-                [
-                'grep',
-                'vendor_id',
-                '/proc/cpuinfo'
-                ],
-                shell=False,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
-            )
-            (out3, err3) = p3.communicate()
-            cpulist = set(out3.strip().split())
-            if 'GenuineIntel' in cpulist: # Intel processor
-                proc_arch = 'core2'                
-            elif 'AuthenticAMD' in cpulist: # AMD processor      
-                p4 = subprocess.Popen(
-                    [
-                    'grep',
-                    'sse4a',
-                    '/proc/cpuinfo'
-                    ],
-                    shell=False,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE
-                )
-                (out4, err4) = p4.communicate()
-                if len(out4) > 0:
-                    proc_arch = 'barcelona'                    
-                else:
-                    proc_arch = 'opteron'                    
-        else:
-            print 'Unable to determine processor architecture'
-            print ''.join(['This system reports the CPU as: ',proc_type])
-    except:
-        e = sys.exc_info()[0]
-        print ''.join(['Exception in get_system_info:', str(e)])
-        print 'Exception while checking system configuration.'
-    bin_path = ''.join([os,'_',proc_type,'_',proc_arch])
-    sysInfo = [os, proc_type, proc_arch, bin_path]
-    return sysInfo
-
 def get_install_path():
     installPath = os.getcwd()
     displaytext = ''.join(
         [
-        'Path for Splunk_TA_flowfix ',
+        'Path for NetFlow scripts ',
         '[', installPath, ']: '
         ]
     )
