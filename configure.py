@@ -465,7 +465,6 @@ def main():
         show_intro()
         print 'This process will overwrite indexes.conf, inputs.conf, and listener.conf'
         path = get_install_path()
-        index = get_index_name()
         rollover = get_rollover_interval();
         logdays = get_retention_interval();
         listener_count = get_listener_count();
@@ -482,6 +481,7 @@ def main():
             counter += 1
         create_local_config_directory(path)
         create_output_directories(path)
+        index = get_index_name()
         index_success = write_index_file(path,index) 
         input_success = write_inputs_file(path,index)
         listener_success = write_listener_config_file(path,sysinfo,rollover,logdays,listeners)
