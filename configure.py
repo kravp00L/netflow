@@ -307,10 +307,32 @@ def get_install_path():
             print 'Error encountered validating path. Using current directory.'
     return installPath
         
+def get_nfcapd_path()
+    nfcapd_binary = '/usr/local/bin/nfcapd'
+    if not (os.path.exists(nfcapd_binary) and os.path.isfile(nfcapd_binary)):
+        p = subprocess.Popen(
+            [
+            'find',
+            '/',
+            '-name',
+            'nfcapd',
+            '-print'
+            ],
+            shell=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        (out, err) = p.communicate()
+        for result in out:
+            if result.find('home') == -1:
+                nfcapd_binary = result
+                break
+    return nfcapd_binary
+    
 def create_output_directories(install_path):
     try:
         for f in [BINARY_LOG_DIR, ASCII_LOG_DIR, ARCHIVE_LOG_DIR]:
-            current_dir = os.path.join(install_path, f)
+            current_dir = os.path.join(install_path, 'data', f)
             if not os.path.exists(current_dir):
                 os.makedirs(current_dir)        
     except:
@@ -320,7 +342,7 @@ def create_output_directories(install_path):
 
 def create_local_config_directory(install_path):
     try:
-        local_dir = os.path.join(install_path, 'local')
+        local_dir = os.path.join(install_path, 'conf')
         if not os.path.exists(local_dir):
             os.makedirs(local_dir)        
     except:
@@ -436,19 +458,19 @@ def write_index_file(install_path, index_name):
         print ''.join(['Error while writing out file ', file_name])    
     return success
 
-def write_listener_config_file(install_path, sysinfo, log_timespan,
+def write_listener_config_file(install_path, log_timespan,
                                 log_lifetime, listeners):
     success = False
-    file_name = os.path.join(install_path, 'local','listener.conf')
+    file_name = os.path.join(install_path, 'conf','listener.conf')
     try:
         with open(file_name,'w') as f:
             f.write('[global]')
             f.write('\n')
-            f.write(''.join(['binLogPath  = ',install_path,'/',BINARY_LOG_DIR]))
+            f.write(''.join(['binLogPath  = ',install_path,'/data/',BINARY_LOG_DIR]))
             f.write('\n')
-            f.write(''.join(['asciiLogPath = ',install_path,'/',ASCII_LOG_DIR]))
+            f.write(''.join(['asciiLogPath = ',install_path,'/data/',ASCII_LOG_DIR]))
             f.write('\n')
-            f.write(''.join(['archivePath = ',install_path,'/',ARCHIVE_LOG_DIR]))
+            f.write(''.join(['archivePath = ',install_path,'/data/',ARCHIVE_LOG_DIR]))
             f.write('\n')
             f.write(''.join(['nfcapdPath = ',install_path,'/bin/',sysinfo[3]]))
             f.write('\n')
@@ -498,7 +520,7 @@ def main():
         this_listener = [counter,ip,port,pidfile]
         listeners.append(this_listener)
         counter += 1
-    create_local_config_directory(path)
+    create_config_directory(path)
     create_output_directories(path)
     index = get_index_name()
     index_success = write_index_file(path,index) 
