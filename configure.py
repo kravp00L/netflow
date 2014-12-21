@@ -475,7 +475,7 @@ def write_listener_config_file(install_path, sysinfo, log_timespan,
 
 # program execution 
 def main():
-    check_uid
+    check_uid()
     try:
         success = False
         show_intro()
