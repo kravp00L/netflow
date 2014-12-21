@@ -59,11 +59,10 @@ def show_intro():
     print 'prior to executing this script.  The nfdump tools can be found at '
     print 'http://nfdump.sourceforge.net/ and should be compiled locally.'
     print '\n'
-    print 'The script will also create configuration files for sending the data '
-    print 'to a Splunk instance.  The script expects Splunk Enterprise or a Splunk '
-    print 'forwarder to be installed on the system.   If your target output system is '
-    print 'something different, you should modify the script prior to execution to meet '
-    print 'the specific needs of your target. '
+    print 'The script will also create the configuration stanzas for sending '
+    print 'the data to a Splunk instance. If your target output system is '
+    print 'something different, you should modify the script prior to execution '
+    print 'to meet the specific needs of your target. '
     print '\n'
 
 def get_listener_count():
@@ -390,42 +389,12 @@ def set_path_permissions(install_path):
         
 def write_inputs_file(install_path, index_name):
     success = False
-    file_name = os.path.join(install_path, 'local','inputs.conf')
+    file_name = os.path.join(install_path, 'conf','inputs.conf')
     try:
         with open(file_name,'w') as f:
             f.write(''.join(['[monitor://',install_path,'/',ASCII_LOG_DIR,']']))
             f.write('\n')
             f.write(''.join(['index = ',index_name]))        
-            f.write('\n')
-            f.write('sourcetype = netflow')
-            f.write('\n')
-            f.write('disabled = false')
-            f.write('\n\n')
-            f.write(''.join(['[script://',install_path,'/bin/',DAEMON_SCRIPT,']']))
-            f.write('\n')
-            f.write(''.join(['index = ',index_name]))        
-            f.write('\n')
-            f.write('interval = 300')
-            f.write('\n')
-            f.write('sourcetype = netflow')
-            f.write('\n')
-            f.write('disabled = false')
-            f.write('\n\n')
-            f.write(''.join(['[script://',install_path,'/bin/',DUMP_SCRIPT,']']))
-            f.write('\n')
-            f.write(''.join(['index = ',index_name]))        
-            f.write('\n')
-            f.write('interval = 600')
-            f.write('\n')
-            f.write('sourcetype = netflow')
-            f.write('\n')
-            f.write('disabled = false')
-            f.write('\n\n')
-            f.write(''.join(['[script://',install_path,'/bin/',CLEANUP_SCRIPT,']']))
-            f.write('\n')
-            f.write(''.join(['index = ',index_name]))        
-            f.write('\n')
-            f.write('interval = 86400')
             f.write('\n')
             f.write('sourcetype = netflow')
             f.write('\n')
@@ -440,7 +409,7 @@ def write_inputs_file(install_path, index_name):
 
 def write_index_file(install_path, index_name):
     success = False
-    file_name = os.path.join(install_path, 'local','indexes.conf')
+    file_name = os.path.join(install_path, 'conf','indexes.conf')
     try:
         with open(file_name,'w') as f:
             f.write(''.join(['[',index_name,']']))
@@ -472,7 +441,7 @@ def write_listener_config_file(install_path, log_timespan,
             f.write('\n')
             f.write(''.join(['archivePath = ',install_path,'/data/',ARCHIVE_LOG_DIR]))
             f.write('\n')
-            f.write(''.join(['nfcapdPath = ',install_path,'/bin/',sysinfo[3]]))
+            f.write(''.join(['nfcapdPath = ',get_nfcapd_path()]))
             f.write('\n')
             f.write(''.join(['rolloverInterval = ',str(log_timespan)]))
             f.write('\n')
