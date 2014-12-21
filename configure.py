@@ -494,7 +494,7 @@ def main():
     index = get_index_name()
     index_success = write_index_file(path,index) 
     input_success = write_inputs_file(path,index)
-    listener_success = write_listener_config_file(path,sysinfo,rollover,logdays,listeners)
+    listener_success = write_listener_config_file(path,rollover,logdays,listeners)
     set_path_owner(path)
     set_path_permissions(path)
     success = index_success and input_success and listener_success
