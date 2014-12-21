@@ -37,22 +37,17 @@ MIN_BIND_PORT = 1024
 MAX_BIND_PORT = 65536
 
 def show_intro():
-    print ''.join(['TA-FlowFIX v',TA_VERSION,'\n'])
-    print 'Please send comments or suggestions to beaker@splunk.com'
+    print ''.join(['NetFlow collector v',VERSION,'\n'])
+    print 'This script will configure NetFlow collection on this system '
+    print 'using nfcapd.  The nfdump tools should be installed on the system '
+    print 'prior to executing this script.  The nfdump tools can be found at '
+    print 'http://nfdump.sourceforge.net/ and should be compiled locally.'
     print '\n'
-    print 'This script will configure TA-FlowFIX on this system.'
-    print 'Run this in the root of TA-flowfix on the system (as a user with'
-    print 'owner/write privileges) that will listen for Netflow or IPFIX'
-    print 'streams. You will need either a full Splunk installation or the'
-    print 'Splunk Forwarder present.'
-    print '\n'
-    print 'There are two modes of installation. One is for a system running'
-    print 'this Netflow/IPFIX receiver and using a Splunk Forwarder to send'
-    print 'events to a Splunk Indexer.'
-    print '\n'
-    print 'The other is for a stand alone Splunk instance, where only the'
-    print 'eventtype transforms and tagging definitions are added. A'
-    print 'separate index will be created.'
+    print 'The script will also create configuration files for sending the data '
+    print 'to a Splunk instance.  The script expects Splunk Enterprise or a Splunk '
+    print 'forwarder to be installed on the system.   If your target output system is '
+    print 'something different, you should modify the script prior to execution to meet '
+    print 'the specific needs of your target. '
     print '\n'
 
 def get_install_type():
@@ -563,54 +558,33 @@ def write_listener_config_file(install_path, sysinfo, log_timespan,
 # program execution 
 def main():
     try:
-        show_intro()
-        install_type = get_install_type()
         success = False
-        if install_type == 2:
-            # just update indexes.conf
-            print 'This process will overwrite indexes.conf'
-            path = get_install_path()
-            index = get_index_name()
-            success = write_index_file(path,index)        
-        elif install_type == 1:
-            sysinfo = get_system_info();
-            if 'undefined' in sysinfo:
-                print 'OS or CPU type not supported for this TA.'
-                print 'System must be 32 or 64-bit Linux or 64-bit FreeBSD'
-                print ''.join(['System info: OS:  ',str(sysinfo[0])]);
-                print ''.join(['System info: CPU: ',str(sysinfo[1])]);
-                print ''.join(['System info: Arch: ',str(sysinfo[2])]);
-                raise OperatingSystemException
-            print 'This process will overwrite indexes.conf, inputs.conf, and listener.conf'
-            path = get_install_path()
-            index = get_index_name()
-            rollover = get_rollover_interval();
-            logdays = get_retention_interval();
-            listener_count = get_listener_count();
-            counter = 0
-            listeners = []
-            while counter < listener_count:
-                ip = get_bind_address();
-                port = get_bind_port();
-                check_bind_port(ip,port)
-                pidfile = ''.join(['nfcapd_listener',str(counter),'_',
-                                    ip,'_',str(port),'.pid'])
-                this_listener = [counter,ip,port,pidfile]
-                listeners.append(this_listener)
-                counter += 1
-            create_local_config_directory(path)
-            create_output_directories(path)
-            index_success = write_index_file(path,index) 
-            input_success = write_inputs_file(path,index)
-            listener_success = write_listener_config_file(
-                                    path,sysinfo,rollover,logdays,listeners)
-            set_path_owner(path)
-            set_path_permissions(path)
-            success = index_success and input_success and listener_success
-        else:
-            # something is very wrong if we ever get to this block
-            print 'Something bad happened somewhere. Exiting.'
-            sys.exit(1)
+        show_intro()
+        print 'This process will overwrite indexes.conf, inputs.conf, and listener.conf'
+        path = get_install_path()
+        index = get_index_name()
+        rollover = get_rollover_interval();
+        logdays = get_retention_interval();
+        listener_count = get_listener_count();
+        counter = 0
+        listeners = []
+        while counter < listener_count:
+            ip = get_bind_address();
+            port = get_bind_port();
+            check_bind_port(ip,port)
+            pidfile = ''.join(['nfcapd_listener',str(counter),'_',
+                                ip,'_',str(port),'.pid'])
+            this_listener = [counter,ip,port,pidfile]
+            listeners.append(this_listener)
+            counter += 1
+        create_local_config_directory(path)
+        create_output_directories(path)
+        index_success = write_index_file(path,index) 
+        input_success = write_inputs_file(path,index)
+        listener_success = write_listener_config_file(path,sysinfo,rollover,logdays,listeners)
+        set_path_owner(path)
+        set_path_permissions(path)
+        success = index_success and input_success and listener_success
     except OperatingSystemException:
         print 'Exiting configuration script.'
     except:
