@@ -306,7 +306,7 @@ def get_install_path():
             print 'Error encountered validating path. Using current directory.'
     return installPath
         
-def get_nfcapd_path()
+def get_nfcapd_path():
     nfcapd_binary = '/usr/local/bin/nfcapd'
     if not (os.path.exists(nfcapd_binary) and os.path.isfile(nfcapd_binary)):
         p = subprocess.Popen(
