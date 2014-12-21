@@ -1,0 +1,6 @@
+netflow
+=======
+
+Scripts and queries to support the deployment of netflow data collection and analysis.
+
+The Python scripts were developed using Python 2.7 and have not been tested against Python 3.x
