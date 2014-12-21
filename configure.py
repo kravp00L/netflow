@@ -38,15 +38,16 @@ MAX_BIND_PORT = 65536
 
 def check_uid():
     try:
+        privs = False
         p = subprocess.Popen(['id'],
             shell=False,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
         (out, err) = p.communicate()
-        if out.find('uid=0') < 0:
-            print 'This script must be run as root. Exiting!'
-            sys.exit(1)
+        if out.find('uid=0') >= 0:
+            privs = True
+        return privs
     except:
         e = sys.exc_info()[0]
         print ''.join(['Exception in checking permissions for user context:', str(e)])
@@ -475,9 +476,12 @@ def write_listener_config_file(install_path, sysinfo, log_timespan,
 
 # program execution 
 def main():
-    check_uid()
     try:
         success = False
+        is_root = check_uid()
+        if not (is_root):
+            print 'Script must be run as root. Exiting.'
+            sys.exit(1)
         show_intro()
         print 'This process will overwrite indexes.conf, inputs.conf, and listener.conf'
         path = get_install_path()
