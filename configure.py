@@ -339,7 +339,7 @@ def create_output_directories(install_path):
             print 'Error creating output directory. File with same name exists.'
             raise
 
-def create_local_config_directory(install_path):
+def create_config_directory(install_path):
     try:
         local_dir = os.path.join(install_path, 'conf')
         if not os.path.exists(local_dir):
