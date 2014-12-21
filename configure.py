@@ -36,6 +36,21 @@ DEFAULT_BIND_PORT = 9995
 MIN_BIND_PORT = 1024
 MAX_BIND_PORT = 65536
 
+def check_uid():
+    try:
+        p = subprocess.Popen(['id'],
+            shell=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        (out, err) = p.communicate()
+        if out.find('uid=0') < 0:
+            print 'This script must be run as root. Exiting!'
+            sys.exit(1)
+    except:
+        e = sys.exc_info()[0]
+        print ''.join(['Exception in checking permissions for user context:', str(e)])
+    
 def show_intro():
     print ''.join(['NetFlow collector v',VERSION,'\n'])
     print 'This script will configure NetFlow collection on this system '
@@ -460,6 +475,7 @@ def write_listener_config_file(install_path, sysinfo, log_timespan,
 
 # program execution 
 def main():
+    check_uid
     try:
         success = False
         show_intro()
