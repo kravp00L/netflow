@@ -100,7 +100,7 @@ def get_listener_count():
                 listener_count = DEFAULT_LISTENER_COUNT
                 break
         except KeyboardInterrupt:
-            sys.exit()
+            sys.exit(0)
         except:    
             print 'Error processing your selection'      
     return listener_count
@@ -131,7 +131,7 @@ def get_retention_interval():
                 retention_interval = DEFAULT_LOG_SAVE_DAYS
                 break
         except KeyboardInterrupt:
-            sys.exit()
+            sys.exit(0)
         except:    
             print 'Error processing your selection'      
     return retention_interval
@@ -157,7 +157,7 @@ def get_rollover_interval():
                 rollover_cycle = DEFAULT_LOG_ROLLOVER
                 break
         except KeyboardInterrupt:
-            sys.exit()
+            sys.exit(0)
         except:    
             print 'Error processing your selection'      
     return rollover_cycle
@@ -178,7 +178,7 @@ def get_index_name():
         else:
             print ''.join(['Using default index ',index_name])
     except KeyboardInterrupt:
-            sys.exit()
+            sys.exit(0)
     except:
         print 'Error processing your Index selection.'
         sys.exit(1) 
@@ -241,7 +241,7 @@ def get_bind_address():
                 bind_ip = DEFAULT_BIND_IP    
                 break
         except KeyboardInterrupt:
-            sys.exit()
+            sys.exit(0)
         except:
             print 'Error processing your address selection.'
     return bind_ip
@@ -276,7 +276,7 @@ def get_bind_port():
                 print ''.join(['Using default of UDP port ',str(bind_port)])
                 break
         except KeyboardInterrupt:
-            sys.exit()
+            sys.exit(0)
         except PriviligedPortException:
             print ''.join(['Please select a port above ',str(MIN_BIND_PORT)])
         except:
@@ -302,7 +302,7 @@ def get_install_path():
             else:
                 break
         except KeyboardInterrupt:
-            sys.exit()
+            sys.exit(0)
         except:
             print 'Error encountered validating path. Using current directory.'
     return installPath
@@ -476,42 +476,37 @@ def write_listener_config_file(install_path, sysinfo, log_timespan,
 
 # program execution 
 def main():
-    try:
-        success = False
-        is_root = check_uid()
-        if not (is_root):
-            print 'Script must be run as root. Exiting.'
-            sys.exit(1)
-        show_intro()
-        print 'This process will overwrite indexes.conf, inputs.conf, and listener.conf'
-        path = get_install_path()
-        rollover = get_rollover_interval();
-        logdays = get_retention_interval();
-        listener_count = get_listener_count();
-        counter = 0
-        listeners = []
-        while counter < listener_count:
-            ip = get_bind_address();
-            port = get_bind_port();
-            check_bind_port(ip,port)
-            pidfile = ''.join(['nfcapd_listener',str(counter),'_',
-                                ip,'_',str(port),'.pid'])
-            this_listener = [counter,ip,port,pidfile]
-            listeners.append(this_listener)
-            counter += 1
-        create_local_config_directory(path)
-        create_output_directories(path)
-        index = get_index_name()
-        index_success = write_index_file(path,index) 
-        input_success = write_inputs_file(path,index)
-        listener_success = write_listener_config_file(path,sysinfo,rollover,logdays,listeners)
-        set_path_owner(path)
-        set_path_permissions(path)
-        success = index_success and input_success and listener_success
-    except OperatingSystemException:
-        print 'Exiting configuration script.'
-    except:
-        print 'Exception in program execution.'
+    success = False
+    is_root = check_uid()
+    if not (is_root):
+        print 'Script must be run as root. Exiting.'
+        sys.exit(1)
+    show_intro()
+    print 'This process will overwrite indexes.conf, inputs.conf, and listener.conf'
+    path = get_install_path()
+    rollover = get_rollover_interval();
+    logdays = get_retention_interval();
+    listener_count = get_listener_count();
+    counter = 0
+    listeners = []
+    while counter < listener_count:
+        ip = get_bind_address();
+        port = get_bind_port();
+        check_bind_port(ip,port)
+        pidfile = ''.join(['nfcapd_listener',str(counter),'_',
+                            ip,'_',str(port),'.pid'])
+        this_listener = [counter,ip,port,pidfile]
+        listeners.append(this_listener)
+        counter += 1
+    create_local_config_directory(path)
+    create_output_directories(path)
+    index = get_index_name()
+    index_success = write_index_file(path,index) 
+    input_success = write_inputs_file(path,index)
+    listener_success = write_listener_config_file(path,sysinfo,rollover,logdays,listeners)
+    set_path_owner(path)
+    set_path_permissions(path)
+    success = index_success and input_success and listener_success
     if (success):
         print 'Configuration complete.'
         sys.exit(0)
