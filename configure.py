@@ -32,7 +32,7 @@ DEFAULT_LOG_SAVE_DAYS = 3
 MIN_LOG_SAVE_DAYS = 1
 MAX_LOG_SAVE_DAYS = 180
 DEFAULT_BIND_IP = '0.0.0.0'
-DEFAULT_BIND_PORT = 9991
+DEFAULT_BIND_PORT = 9995
 MIN_BIND_PORT = 1024
 MAX_BIND_PORT = 65536
 
@@ -49,27 +49,6 @@ def show_intro():
     print 'something different, you should modify the script prior to execution to meet '
     print 'the specific needs of your target. '
     print '\n'
-
-def get_install_type():
-    print 'Which type of installation will you be performing:'
-    print ' (1) Netflow or IPFIX receiver/listener'
-    print ' (2) \'netflow\' eventtype parser only'
-    while True:
-        try:
-            install_type = int(raw_input('Selection: '))
-            if install_type == 1:
-                print 'Netflow or IPFIX receiver configuration selected'
-                break
-            elif install_type == 2:
-                print 'Netflow event parser configuration selected'
-                break
-            else:
-                print 'Please select option 1 or 2.'
-        except KeyboardInterrupt:
-            sys.exit()
-        except:    
-            print 'Error processing your selection'      
-    return install_type
 
 def get_listener_count():
     listener_count = DEFAULT_LISTENER_COUNT
@@ -514,7 +493,7 @@ def main():
     except:
         print 'Exception in program execution.'
     if (success):
-        print 'Configuration complete.  Please restart Splunk.'
+        print 'Configuration complete.'
         sys.exit(0)
     else:
         print 'Error during configuration. Please re-run configuration script.'
