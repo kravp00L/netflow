@@ -1,6 +1,26 @@
-netflow
+Netflow
 =======
 
-Scripts and queries to support the deployment of netflow data collection and analysis.
+This project is a set of python scripts and queries to support the deployment
+of netflow data collection and analysis.  Netflow collection is handled by
+nfcapd from the nfdump tools [http://nfdump.sourceforge.net/].  The scripts
+handle the management of the listener, the data export from binary netflow
+to ascii, and the cleanup of binary and ascii log files.
 
-The Python scripts were developed using Python 2.7 and have not been tested against Python 3.x
+The ascii output is intended for consumption by Splunk.  The required stanzas
+for Splunk are created in the conf directory in the inputs.conf file.  This
+script will NOT automatically update an existing Splunk confiuration, so
+the input stanzas will need to be transcribed to the appropriate Splunk
+config file.
+
+The Python scripts were developed using Python 2.7 and have not been tested
+against Python 3.x
+
+Prequisites
+nfdump tools, notably nfcapd and nfdump, compiled locally and installed in
+/usr/local/bin - this is the default location for installation
+
+Splunk forwarder or Splunk Enterprise installation on the local system
+
+The configure.py script needs to run as root or with sudo since it needs to
+write to /opt
