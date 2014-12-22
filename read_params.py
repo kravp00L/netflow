@@ -9,14 +9,15 @@ import datetime
 import os
 import sys
 
+BASE_DIR = '/opt/netflow'
 CONFIG_FILE = 'listener.conf'
 
 def get_config_file():
     # TODO: Future read base path from ENV
-    app_path = os.path.join('/opt', 'netflow', 'conf')
+    app_path = os.path.join(BASE_DIR, 'conf')
     local_file = os.path.join(app_path, CONFIG_FILE)
     if os.path.exists(local_file) and os.path.isfile(local_file):
-        print ''.join(['Using file ',local_file])
+        return local_file
     else:
         sys.exit(1)
 

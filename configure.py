@@ -327,7 +327,29 @@ def get_nfcapd_path():
                 nfcapd_binary = result
                 break
     return nfcapd_binary
-    
+
+def get_nfdump_path():
+    nfdump_binary = '/usr/local/bin/nfdump'
+    if not (os.path.exists(nfdump_binary) and os.path.isfile(nfdump_binary)):
+        p = subprocess.Popen(
+            [
+            'find',
+            '/',
+            '-name',
+            'nfdump',
+            '-print'
+            ],
+            shell=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        (out, err) = p.communicate()
+        for result in out:
+            if result.find('home') == -1:
+                nfdump_binary = result
+                break
+    return nfdump_binary    
+
 def create_output_directories(install_path):
     try:
         for f in [BINARY_LOG_DIR, ASCII_LOG_DIR, ARCHIVE_LOG_DIR]:
@@ -399,7 +421,13 @@ def write_listener_config_file(install_path, log_timespan,
             f.write('\n')
             f.write(''.join(['archive_path = ',install_path,'/data/',ARCHIVE_LOG_DIR]))
             f.write('\n')
+            f.write(''.join(['ascii_log_path = ',install_path,'/data/',ASCII_LOG_DIR]))
+            f.write('\n')
+            f.write(''.join(['bin_log_path = ',install_path,'/data/',BINARY_LOG_DIR]))
+            f.write('\n')
             f.write(''.join(['nfcapd_path = ',get_nfcapd_path()]))
+            f.write('\n')
+            f.write(''.join(['nfcapd_path = ',get_nfdump_path()]))
             f.write('\n')
             f.write(''.join(['rollover_secs = ',str(log_timespan)]))
             f.write('\n')

@@ -11,11 +11,11 @@ import subprocess
 import socket
 import pdb
 
+BASE_DIR = '/opt/netflow'
 CONFIG_FILE = 'listener.conf'
-BINARY_NAME = 'nfcapd'
 
 def get_config_file():
-    app_path = os.path.join('/opt', 'netflow', 'conf')
+    app_path = os.path.join(BASE_DIR, 'conf')
     local_file = os.path.join(app_path, CONFIG_FILE)    
     if os.path.exists(local_file) and os.path.isfile(local_file):
         return local_file
@@ -61,7 +61,7 @@ def start_listener(listener, params):
     try:
         p = subprocess.Popen(
             [
-            ''.join([bin_path,'/',BINARY_NAME]),
+            bin_path,
             '-p',
             str(bind_port),
             '-b',
@@ -73,7 +73,7 @@ def start_listener(listener, params):
             '-l',
             log_path,
             '-P',
-            ''.join([bin_path,'/',pid_file]),
+            ''.join([BASE_DIR,'/',pid_file]),
             '-D'
             ], 
             shell=False,
@@ -95,7 +95,7 @@ def check_listener_status(listener, params):
     active = False
     bin_path = params.get('nfcapd_path')
     pid_file = listener.get('listener_pid_file')
-    file_name = ''.join([bin_path,'/',pid_file])
+    file_name = ''.join([BASE_DIR,'/',pid_file])
     try:
         if os.path.isfile(file_name) and os.path.exists(file_name):
             # read file and check status of pid

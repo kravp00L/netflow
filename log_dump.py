@@ -11,11 +11,11 @@ import shutil
 import subprocess
 import pdb
 
+BASE_DIR = '/opt/netflow'
 CONFIG_FILE = 'listener.conf'
-BINARY_NAME = 'nfdump'
 
 def get_config_file():
-    app_path = os.path.join('/opt', 'netflow', 'conf')
+    app_path = os.path.join(BASE_DIR, 'conf')
     local_file = os.path.join(app_path, CONFIG_FILE)
     if os.path.exists(local_file) and os.path.isfile(local_file):
         return local_file
@@ -71,7 +71,7 @@ def export_netflow_data(params):
     archive_path = params.get('archive_path')
     export_path = params.get('ascii_log_path')
     log_path = params.get('bin_log_path')
-    bin_path = params.get('nfcapd_path')    
+    bin_path = params.get('nfdump_path')    
     try:
         files = os.listdir(log_path)
         for f in files:
@@ -81,7 +81,7 @@ def export_netflow_data(params):
                     export_file = get_export_filename(f)
                     p = subprocess.Popen(
                         [
-                        ''.join([bin_path,'/',BINARY_NAME]),
+                        bin_path,
                         '-q',
                         '-r',
                         this_file,
