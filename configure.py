@@ -108,7 +108,7 @@ def get_retention_interval():
     retention_interval = DEFAULT_LOG_SAVE_DAYS
     message = ''.join(
         [
-        'Number of days to keep binary flow logs [Default: ',
+        'Number of days to keep exported ASCII flow logs [Default: ',
         str(DEFAULT_LOG_SAVE_DAYS),']: '
         ]
     )
@@ -119,7 +119,7 @@ def get_retention_interval():
                 retention_interval = int(response.strip())
                 if not MIN_LOG_SAVE_DAYS <= retention_interval <= MAX_LOG_SAVE_DAYS:
                     print ''.join(['You selected ', str(retention_interval),
-                                   ' days to retain binary flow logs.'])
+                                   ' days to retain exported ASCII flow logs.'])
                     print 'This selection is not permitted.'
                     print ''.join(['Please select between ',
                         str(MIN_LOG_SAVE_DAYS),' and ',
@@ -140,7 +140,7 @@ def get_rollover_interval():
     message = ''.join(
         [
         'Number of seconds between rollover of flow capture ',
-        'files for indexing [Default: ', 
+        'files [Default: ', 
         str(DEFAULT_LOG_ROLLOVER),']: '
         ]
     )
@@ -349,44 +349,6 @@ def create_config_directory(install_path):
             print 'Error creating output directory. File with same name exists.'
             raise
             
-def set_path_owner(install_path):
-    try:
-        p = subprocess.Popen(
-            [
-            'chown',
-            '-R',
-            'splunk:splunk',
-            install_path
-            ],
-            shell=False,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        (out, err) = p.communicate()                            
-    except:
-        e = sys.exc_info()[0]
-        print ''.join(['Exception in set_path_owner:', str(e)])
-        print ''.join(['Error setting owner for ', install_path])
-    
-def set_path_permissions(install_path):
-    try:
-        p = subprocess.Popen(
-            [
-            'chmod',
-            '-R',
-            '755',
-            install_path
-            ],
-            shell=False,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        (out, err) = p.communicate()                                                        
-    except:
-        e = sys.exc_info()[0]
-        print ''.join(['Exception in set_path_permissions:', str(e)])
-        print ''.join(['Error setting permissions on ', install_path])
-        
 def write_inputs_file(install_path, index_name):
     success = False
     file_name = os.path.join(install_path, 'conf','inputs.conf')
@@ -435,10 +397,6 @@ def write_listener_config_file(install_path, log_timespan,
         with open(file_name,'w') as f:
             f.write('[global]')
             f.write('\n')
-            f.write(''.join(['bin_log_path  = ',install_path,'/data/',BINARY_LOG_DIR]))
-            f.write('\n')
-            f.write(''.join(['ascii_log_path = ',install_path,'/data/',ASCII_LOG_DIR]))
-            f.write('\n')
             f.write(''.join(['archive_path = ',install_path,'/data/',ARCHIVE_LOG_DIR]))
             f.write('\n')
             f.write(''.join(['nfcapd_path = ',get_nfcapd_path()]))
@@ -465,10 +423,31 @@ def write_listener_config_file(install_path, log_timespan,
         print ''.join(['Error while writing out file ', file_name])    
     return success
 
-def create_schedule():
-    cron_cmd = '0/5 * * * * '
+def create_schedule(install_path):
+    # TODO: Directly write to crontab?
     # (crontab -u userhere -l; echo "$line" ) | crontab -u userhere -
-    
+    success = False
+    listener_sched = '0/5 * * * * '
+    dump_sched = '0/1 * * * * '
+    cleanup_sched = '30 22 * * * '
+    file_name = os.path.join(install_path, 'conf','cron.entries')
+    try:
+        with open(file_name,'w') as f:
+            f.write('# Add the entries below to crontab for root')
+            f.write('\n')
+            f.write(''.join([listener_sched,install_path,'/',DAEMON_SCRIPT]))
+            f.write('\n')
+            f.write(''.join([dump_sched,install_path,'/',DUMP_SCRIPT]))
+            f.write('\n')
+            f.write(''.join([cleanup_sched,install_path,'/',CLEANUP_SCRIPT]))
+            f.write('\n')
+        success = True
+    except:
+        e = sys.exc_info()[0]
+        print ''.join(['Exception in create_schedule:', str(e)])
+        print ''.join(['Error while writing out file ', file_name])
+    return success
+   
 # program execution 
 def main():
     success = False
@@ -494,12 +473,11 @@ def main():
         counter += 1
     create_config_directory(path)
     create_output_directories(path)
+    create_schedule(path)
     index = get_index_name()
     index_success = write_index_file(path,index) 
     input_success = write_inputs_file(path,index)
     listener_success = write_listener_config_file(path,rollover,logdays,listeners)
-    set_path_owner(path)
-    set_path_permissions(path)
     success = index_success and input_success and listener_success
     if (success):
         print 'Configuration complete.'
