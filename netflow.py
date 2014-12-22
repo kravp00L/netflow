@@ -15,7 +15,7 @@ CONFIG_FILE = 'listener.conf'
 BINARY_NAME = 'nfcapd'
 
 def get_config_file():
-    app_path = os.path.join('opt', 'netflow', 'conf')
+    app_path = os.path.join('/opt', 'netflow', 'conf')
     local_file = os.path.join(app_path, CONFIG_FILE)    
     if os.path.exists(local_file) and os.path.isfile(local_file):
         return local_file
