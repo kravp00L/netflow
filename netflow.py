@@ -15,14 +15,12 @@ CONFIG_FILE = 'listener.conf'
 BINARY_NAME = 'nfcapd'
 
 def get_config_file():
-    apps_base_dir = os.path.join(os.environ["SPLUNK_HOME"], 'etc', 'apps')
-    app_path = os.path.join(apps_base_dir, 'Splunk_TA_flowfix')
-    default_file = os.path.join(app_path, 'default', CONFIG_FILE)
-    local_file = os.path.join(app_path, 'local', CONFIG_FILE)    
+    app_path = os.path.join('opt', 'netflow', 'conf')
+    local_file = os.path.join(app_path, CONFIG_FILE)    
     if os.path.exists(local_file) and os.path.isfile(local_file):
         return local_file
     else:
-        return default_file
+        sys.exit(1)
     
 def read_config():
     params = dict()
@@ -54,9 +52,9 @@ def read_config():
 
 def start_listener(listener, params):
     success = False
-    log_path = params.get('binLogPath')
-    bin_path = params.get('nfcapdPath')
-    rollover = params.get('rolloverInterval')
+    log_path = params.get('bin_log_path')
+    bin_path = params.get('nfcapd_path')
+    rollover = params.get('rollover_secs')
     bind_ip = listener.get('listener_bind_ip')
     bind_port = listener.get('listener_bind_port')
     pid_file = listener.get('listener_pid_file')
@@ -95,7 +93,7 @@ def start_listener(listener, params):
  
 def check_listener_status(listener, params):
     active = False
-    bin_path = params.get('nfcapdPath')
+    bin_path = params.get('nfcapd_path')
     pid_file = listener.get('listener_pid_file')
     file_name = ''.join([bin_path,'/',pid_file])
     try:
