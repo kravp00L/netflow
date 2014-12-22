@@ -435,17 +435,17 @@ def write_listener_config_file(install_path, log_timespan,
         with open(file_name,'w') as f:
             f.write('[global]')
             f.write('\n')
-            f.write(''.join(['binLogPath  = ',install_path,'/data/',BINARY_LOG_DIR]))
+            f.write(''.join(['bin_log_path  = ',install_path,'/data/',BINARY_LOG_DIR]))
             f.write('\n')
-            f.write(''.join(['asciiLogPath = ',install_path,'/data/',ASCII_LOG_DIR]))
+            f.write(''.join(['ascii_log_path = ',install_path,'/data/',ASCII_LOG_DIR]))
             f.write('\n')
-            f.write(''.join(['archivePath = ',install_path,'/data/',ARCHIVE_LOG_DIR]))
+            f.write(''.join(['archive_path = ',install_path,'/data/',ARCHIVE_LOG_DIR]))
             f.write('\n')
-            f.write(''.join(['nfcapdPath = ',get_nfcapd_path()]))
+            f.write(''.join(['nfcapd_path = ',get_nfcapd_path()]))
             f.write('\n')
-            f.write(''.join(['rolloverInterval = ',str(log_timespan)]))
+            f.write(''.join(['rollover_secs = ',str(log_timespan)]))
             f.write('\n')
-            f.write(''.join(['retentionInterval = ',str(log_lifetime)]))
+            f.write(''.join(['retention_days = ',str(log_lifetime)]))
             f.write('\n\n')
             for listener in listeners:
                 f.write('[listener]')
@@ -465,6 +465,10 @@ def write_listener_config_file(install_path, log_timespan,
         print ''.join(['Error while writing out file ', file_name])    
     return success
 
+def create_schedule():
+    cron_cmd = '0/5 * * * * '
+    # (crontab -u userhere -l; echo "$line" ) | crontab -u userhere -
+    
 # program execution 
 def main():
     success = False
@@ -473,7 +477,6 @@ def main():
         print 'Script must be run as root. Exiting.'
         sys.exit(1)
     show_intro()
-    print 'This process will overwrite indexes.conf, inputs.conf, and listener.conf'
     path = get_install_path()
     rollover = get_rollover_interval();
     logdays = get_retention_interval();
@@ -484,7 +487,7 @@ def main():
         ip = get_bind_address();
         port = get_bind_port();
         check_bind_port(ip,port)
-        pidfile = ''.join(['nfcapd_listener',str(counter),'_',
+        pidfile = ''.join(['nfcapd',str(counter),'_',
                             ip,'_',str(port),'.pid'])
         this_listener = [counter,ip,port,pidfile]
         listeners.append(this_listener)
