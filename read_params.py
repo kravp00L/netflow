@@ -12,13 +12,13 @@ import sys
 CONFIG_FILE = 'listener.conf'
 
 def get_config_file():
-    apps_base_dir = os.path.join(os.environ["NETFLOW_HOME"], 'conf')
-    default_file = os.path.join(app_path, 'default', CONFIG_FILE)
-    local_file = os.path.join(app_path, 'local', CONFIG_FILE)    
+    # TODO: Future read base path from ENV
+    app_path = os.path.join('opt', 'netflow', 'conf')
+    local_file = os.path.join(app_path, CONFIG_FILE)
     if os.path.exists(local_file) and os.path.isfile(local_file):
         return local_file
     else:
-        return default_file
+        sys.exit(1)
 
 def read_config():
     params = dict()

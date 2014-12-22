@@ -15,14 +15,12 @@ CONFIG_FILE = 'listener.conf'
 BINARY_NAME = 'nfdump'
 
 def get_config_file():
-    apps_base_dir = os.path.join(os.environ["SPLUNK_HOME"], 'etc', 'apps')
-    app_path = os.path.join(apps_base_dir, 'Splunk_TA_flowfix')
-    default_file = os.path.join(app_path, 'default', CONFIG_FILE)
-    local_file = os.path.join(app_path, 'local', CONFIG_FILE)
+    app_path = os.path.join('opt', 'netflow', 'conf')
+    local_file = os.path.join(app_path, CONFIG_FILE)
     if os.path.exists(local_file) and os.path.isfile(local_file):
         return local_file
     else:
-        return default_file
+        sys.exit(1)
 
 def read_config():
     params = dict()
@@ -56,8 +54,8 @@ def get_export_filename(filename):
 
 def move_file_to_archive(file, params):
     success = False
-    archive_path = params.get('archivePath')
-    log_path = params.get('binLogPath')
+    archive_path = params.get('archive_path')
+    log_path = params.get('bin_log_path')
     try:
         shutil.move(
             ''.join([log_path,'/',file]),
@@ -70,10 +68,10 @@ def move_file_to_archive(file, params):
     return success
 
 def export_netflow_data(params):
-    archive_path = params.get('archivePath')
-    export_path = params.get('asciiLogPath')
-    log_path = params.get('binLogPath')
-    bin_path = params.get('nfcapdPath')    
+    archive_path = params.get('archive_path')
+    export_path = params.get('ascii_log_path')
+    log_path = params.get('bin_log_path')
+    bin_path = params.get('nfcapd_path')    
     try:
         files = os.listdir(log_path)
         for f in files:
