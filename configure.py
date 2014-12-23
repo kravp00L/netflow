@@ -427,7 +427,7 @@ def write_listener_config_file(install_path, log_timespan,
             f.write('\n')
             f.write(''.join(['nfcapd_path = ',get_nfcapd_path()]))
             f.write('\n')
-            f.write(''.join(['nfcapd_path = ',get_nfdump_path()]))
+            f.write(''.join(['nfdump_path = ',get_nfdump_path()]))
             f.write('\n')
             f.write(''.join(['rollover_secs = ',str(log_timespan)]))
             f.write('\n')
