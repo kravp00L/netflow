@@ -463,11 +463,11 @@ def create_schedule(install_path):
         with open(file_name,'w') as f:
             f.write('# Add the entries below to crontab for root')
             f.write('\n')
-            f.write(''.join([listener_sched,install_path,'/',DAEMON_SCRIPT]))
+            f.write(''.join([listener_sched,'python ',install_path,'/',DAEMON_SCRIPT]))
             f.write('\n')
-            f.write(''.join([dump_sched,install_path,'/',DUMP_SCRIPT]))
+            f.write(''.join([dump_sched,'python ',install_path,'/',DUMP_SCRIPT]))
             f.write('\n')
-            f.write(''.join([cleanup_sched,install_path,'/',CLEANUP_SCRIPT]))
+            f.write(''.join([cleanup_sched,'python ',install_path,'/',CLEANUP_SCRIPT]))
             f.write('\n')
         success = True
     except:
