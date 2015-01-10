@@ -174,8 +174,8 @@ def get_index_name():
         response = str(raw_input(message)).strip()
         if len(response) > 0:
             index_name = response
-        else:
-            print ''.join(['Using default index ',index_name])
+#        else:
+#            print ''.join(['Using default index ',index_name])
     except KeyboardInterrupt:
             sys.exit(0)
     except:
@@ -272,7 +272,7 @@ def get_bind_port():
                     print 'Invalid port selection.'
             else:                
                 bind_port = DEFAULT_BIND_PORT
-                print ''.join(['Using default of UDP port ',str(bind_port)])
+#                print ''.join(['Using default of UDP port ',str(bind_port)])
                 break
         except KeyboardInterrupt:
             sys.exit(0)
@@ -411,6 +411,50 @@ def write_index_file(install_path, index_name):
         print ''.join(['Error while writing out file ', file_name])    
     return success
 
+def write_props_file(install_path):
+    success = False
+    file_name = os.path.join(install_path, 'conf','props.conf')
+    try:
+        with open(file_name,'w') as f:
+            f.write('[netflow]')
+            f.write('\n')
+            f.write('CHECK_FOR_HEADER = false')
+            f.write('\n')
+            f.write('SHOULD_LINEMERGE = false')
+            f.write('\n')
+            f.write('REPORT-netflow_field_extract = netflow_csv')
+            f.write('\n')
+            f.write('FIELDALIAS-src = src_ip AS src')
+            f.write('\n')
+            f.write('FIELDALIAS-dst = dst_ip AS dst')
+            f.write('\n')
+            f.write('FIELDALIAS-input_bytes = input_bytes AS bytes')
+            f.write('\n')
+        success = True
+    except:
+        e = sys.exc_info()[0]
+        print ''.join(['Exception in write_props_file:', str(e)])
+        print ''.join(['Error while writing out file ', file_name])
+    return success
+
+def write_transforms_file(install_path):
+    success = False
+    file_name = os.path.join(install_path, 'conf','transforms.conf')
+    try:
+        with open(file_name,'w') as f:
+            f.write('[netflow_csv]')
+            f.write('\n')
+            f.write('DELIMS = ","')
+            f.write('\n')
+            f.write('FIELDS = "flow_start_time", "flow_end_time", "flow_duration", "src_ip", "dst_ip", "src_port", "dst_port", "protocol", "tcp_flag", "fwd_status", "src_tos", "input_pkts", "input_bytes", "output_pkts", "output_bytes", "in_if", "out_if", "src_bgp_as", "dst_bgp_as", "src_mask", "dst_mask", "dst_tos", "flow_dir", "next_hop_rtr", "bgp_next_hop_rtr", "src_vlan", "dest_vlan", "in_src_mac", "out_dst_mac", "in_dst_mac", "out_src_mac", "mpls1", "mpls2", "mpls3", "mpls4", "mpls5", "mpls6", "mpls7", "mpls8", "mpls9", "mpls10", "client_latency", "server_latency", "app_latency", "rtr_ip", "engine", "exp_sys_id", "flow_received"')
+            f.write('\n')
+        success = True
+    except:
+        e = sys.exc_info()[0]
+        print ''.join(['Exception in write_transforms_file:', str(e)])
+        print ''.join(['Error while writing out file ', file_name])
+    return success
+
 def write_listener_config_file(install_path, log_timespan,
                                 log_lifetime, listeners):
     success = False
@@ -505,8 +549,10 @@ def main():
     index = get_index_name()
     index_success = write_index_file(path,index) 
     input_success = write_inputs_file(path,index)
+    props_success = write_props_file(path)
+    transforms_success = write_transforms_file(path)
     listener_success = write_listener_config_file(path,rollover,logdays,listeners)
-    success = index_success and input_success and listener_success
+    success = index_success and input_success and listener_success and props_success and transforms_success
     if (success):
         print 'Configuration complete.'
         sys.exit(0)
